@@ -1,0 +1,31 @@
+lets(
+  short,
+  [
+    if(empty(prop("ケダモノ名")), "", "【ケダモノ名】" + prop("ケダモノ名")),
+    if(empty(prop("ケダモノ種")), "", "【ケダモノ種】" + prop("ケダモノ種")),
+    if(empty(prop("亜種")), "", "【亜種】" + prop("亜種")),
+    if(empty(prop("群れ")), "", "【群れ】" + prop("群れ")),
+    if(empty(prop("権能")), "", "【権能】" + prop("権能").join("、")),
+    if(empty(prop("欲望")), "", "【欲望】" + prop("欲望")),
+    if(empty(prop("疑似餌の姿")), "", "【疑似餌の姿】" + prop("疑似餌の姿")),
+    if(empty(prop("住処")), "", "【住処】" + prop("住処")),
+    if(empty(prop("伝説")), "", "【伝説】" + prop("伝説"))
+  ].filter(current != "").join("\n"),
+  long,
+  if(empty(prop("設定・メモ")), "", "【設定・メモ】\n" + prop("設定・メモ")),
+  text,
+  id() + "\n```\n" + [short, long].filter(current != "").join("\n\n") + "\n```",
+  link(
+    "📋 コピー",
+    "https://shizaki-kanoto.is-a.dev/kedamono-cs-copy/#" + text
+      .replaceAll("%", "%25")
+      .replaceAll("\n", "%0A")
+      .replaceAll(" ", "%20")
+      .replaceAll("　", "%E3%80%80")
+      .replaceAll("\t", "%09")
+      .replaceAll("\"", "%22")
+      .replaceAll("<", "%3C")
+      .replaceAll(">", "%3E")
+      .replaceAll("`", "%60")
+  )
+)

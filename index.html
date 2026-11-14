@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>CSコピー</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="icons/icon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="description" content="Notionで管理しているケダモノオペラのキャラクターシート（CS）を、Discordに貼れる形式でコピーする非公式ファンツールです。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ケダモノオペラ CSコピー">
+<meta property="og:description" content="Notionで管理しているキャラクターシートを、Discordに貼れる形式でコピーする非公式ファンツールです。">
+<meta property="og:url" content="https://shizaki-kanoto.is-a.dev/kedamono-cs-copy/">
+<meta property="og:image" content="https://shizaki-kanoto.is-a.dev/kedamono-cs-copy/images/og.jpg">
+<meta property="og:image:width" content="1500">
+<meta property="og:image:height" content="600">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f3ede3;
+    --surface: #fbf8f2;
+    --ink: #2b2420;
+    --muted: #6d625a;
+    --line: #d9cfc1;
+    --accent: #8c2f39;
+    --accent-ink: #ffffff;
+    --gold: #9a7a3e;
+    --ok: #2f6b4f;
+    --warn: #a4462a;
+    --serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141118;
+      --surface: #1e1a23;
+      --ink: #ece5da;
+      --muted: #a89e93;
+      --line: #3a3340;
+      --accent: #c25762;
+      --accent-ink: #ffffff;
+      --gold: #c9a86a;
+      --ok: #7cc79f;
+      --warn: #e58a6c;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { background: var(--bg); }
+  body {
+    margin: 0 auto; padding: 40px 16px 32px; max-width: 640px;
+    font-family: var(--sans); line-height: 1.7; color: var(--ink); background: var(--bg);
+  }
+  a { color: var(--gold); text-underline-offset: 3px; }
+  code { font-size: .9em; padding: 1px 5px; border-radius: 4px; background: var(--line); }
+
+  .masthead { text-align: center; margin-bottom: 28px; }
+  .kicker { margin: 0 0 6px; font-size: .75rem; letter-spacing: .2em; color: var(--muted); }
+  .masthead h1 {
+    margin: 0; font-family: var(--serif); font-weight: 600;
+    font-size: clamp(1.7rem, 6vw, 2.2rem); letter-spacing: .08em; line-height: 1.3;
+  }
+  .masthead h1 span { display: block; font-size: .55em; letter-spacing: .3em; color: var(--accent); margin-top: 4px; }
+  .ornament { display: flex; align-items: center; gap: 12px; margin: 16px auto 0; max-width: 240px; color: var(--gold); }
+  .ornament::before, .ornament::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .6; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; margin-bottom: 16px;
+  }
+  .lead { margin: 0 0 4px; }
+  h2 {
+    margin: 0 0 12px; font-family: var(--serif); font-size: 1.1rem; font-weight: 600; letter-spacing: .05em;
+  }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps li { counter-increment: step; display: flex; gap: 12px; align-items: baseline; padding: 6px 0; }
+  .steps li::before {
+    content: counter(step); flex: none; width: 1.8em; text-align: center;
+    font-family: var(--serif); font-size: 1.2rem; color: var(--accent);
+  }
+  .small { margin: 0; font-size: .85rem; color: var(--muted); }
+
+  #status { margin: 0 0 4px; font-family: var(--serif); font-size: 1.3rem; font-weight: 600; }
+  #status.ok { color: var(--ok); }
+  #status.wait { color: var(--warn); }
+  #hint { margin: 0 0 16px; font-size: .9rem; color: var(--muted); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  button {
+    font: inherit; font-weight: 700; color: var(--accent-ink); background: var(--accent);
+    border: 0; border-radius: 999px; padding: 10px 22px; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--gold); outline-offset: 2px;
+  }
+  textarea, input {
+    font: inherit; color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 10px;
+  }
+  textarea {
+    display: block; width: 100%; height: 45vh; min-height: 220px; margin-top: 16px; padding: 12px;
+    resize: vertical; font-size: .9rem; line-height: 1.6;
+  }
+  #url-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; }
+  #url-option input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+
+  #settings { padding: 0; }
+  summary { cursor: pointer; font-weight: 700; padding: 16px 20px; }
+  #settings form { padding: 0 20px 20px; }
+  #settings label { display: block; margin-bottom: 6px; font-size: .9rem; }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1; min-width: 0; padding: 10px 12px; }
+  .note { margin: 8px 0 0; font-size: .85rem; color: var(--muted); }
+  #settings-message { margin: 8px 0 0; font-size: .9rem; font-weight: 700; }
+  #settings-message.error { color: var(--warn); }
+
+  footer { margin-top: 32px; text-align: center; font-size: .8rem; color: var(--muted); }
+  footer p { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <p class="kicker">非公式ファンツール</p>
+  <h1>ケダモノオペラ<span>CSコピー</span></h1>
+  <div class="ornament" aria-hidden="true">✦</div>
+</header>
+
+<section id="about" hidden>
+  <div class="card">
+    <p class="lead">Notionで管理しているキャラクターシート（CS）を、Discordに貼れる形式でクリップボードにコピーします。</p>
+  </div>
+  <div class="card">
+    <h2>使い方</h2>
+    <ol class="steps">
+      <li><span><a href="https://ivory-wednesday-73f.notion.site/CS-4101b663c48f81e6955ded5097afe1ac" target="_blank" rel="noopener">Notionテンプレート</a>を、自分のワークスペースに複製します。</span></li>
+      <li><span>表にキャラクターを追加します。</span></li>
+      <li><span>「📋 コピー」を押すとこのページが開き、CSがコピーされます。</span></li>
+      <li><span>Discordに貼り付けます。</span></li>
+    </ol>
+  </div>
+  <p class="small">CSの内容はリンクの <code>#</code> 以降でこのページに渡され、サーバーには送信されません。</p>
+</section>
+
+<main id="copy-view" class="card">
+  <p id="status" role="status" aria-live="polite"></p>
+  <p id="hint"></p>
+  <div class="actions">
+    <button id="copy" type="button">もう一度コピー</button>
+    <label id="url-option"><input id="include-url" type="checkbox" checked>CS URLを付ける</label>
+  </div>
+  <textarea id="text" readonly aria-label="コピーする内容"></textarea>
+</main>
+
+<details id="settings" class="card">
+  <summary>CS URLの設定</summary>
+  <form id="settings-form">
+    <label for="site">公開したNotionページのURL</label>
+    <div class="row">
+      <input id="site" type="text" inputmode="url" autocomplete="off" spellcheck="false"
+             placeholder="https://example.notion.site/...">
+      <button type="submit">保存</button>
+    </div>
+    <p id="settings-message" role="status" aria-live="polite"></p>
+    <p class="note">未設定のときは、【CS URL】にNotion標準のURLを付けます。公開ページのURLを1つ貼ると、どのキャラも公開URLになります。</p>
+    <p class="note">設定はこのブラウザだけに保存されます。Web公開や共有をしていないページは、他の人には開けません。</p>
+  </form>
+</details>
+
+<footer>
+  <p>『ケダモノオペラ』（著：池梟リョーマ／新紀元社）のファンが作成した非公式ツールです。公式とは関係ありません。<a href="https://operarpg.jp/guideline" target="_blank" rel="noopener">公式のガイドライン</a>に沿って公開しています。</p>
+  <p>不具合・要望・削除のご依頼：X（<a href="https://x.com/shizaki_kanoto" target="_blank" rel="noopener">@shizaki_kanoto</a>）／コード：<a href="https://github.com/shizaki-kanoto-lab/kedamono-cs-copy" target="_blank" rel="noopener">GitHub</a></p>
+</footer>
+
+<script>
+  // 内容はURLの#以降だけに入るので、サーバーへは送信されない
+  // 新形式の#以降: 「ページID(32桁)」「改行」「本文」。ページIDがない形式もそのまま扱う
+  const STORAGE_KEY = 'kedamono-cs-copy:site-origin';
+  const INCLUDE_URL_KEY = 'kedamono-cs-copy:include-url';
+  const DEFAULT_ORIGIN = 'https://www.notion.so';
+  const statusEl = document.getElementById('status');
+  const hintEl = document.getElementById('hint');
+  const button = document.getElementById('copy');
+  const area = document.getElementById('text');
+  const urlOption = document.getElementById('url-option');
+  const includeUrl = document.getElementById('include-url');
+  const settings = document.getElementById('settings');
+  const form = document.getElementById('settings-form');
+  const siteInput = document.getElementById('site');
+  const settingsMessage = document.getElementById('settings-message');
+
+  function readHash() {
+    const raw = location.hash.slice(1);
+    let decoded;
+    try {
+      decoded = decodeURIComponent(raw);
+    } catch {
+      return null;
+    }
+    const match = decoded.match(/^([0-9a-f]{32})\n([\s\S]*)$/);
+    return match ? { pageId: match[1], body: match[2] } : { pageId: null, body: decoded };
+  }
+
+  function loadOrigin() {
+    try {
+      return localStorage.getItem(STORAGE_KEY) || '';
+    } catch {
+      return '';
+    }
+  }
+
+  function saveOrigin(origin) {
+    try {
+      if (origin) {
+        localStorage.setItem(STORAGE_KEY, origin);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function loadIncludeUrl() {
+    try {
+      return localStorage.getItem(INCLUDE_URL_KEY) !== '0';
+    } catch {
+      return true;
+    }
+  }
+
+  function saveIncludeUrl(include) {
+    try {
+      if (include) {
+        localStorage.removeItem(INCLUDE_URL_KEY);
+      } else {
+        localStorage.setItem(INCLUDE_URL_KEY, '0');
+      }
+    } catch {
+      // 保存できなくても、このページの操作には影響しない
+    }
+  }
+
+  // ページURL、ドメイン、example だけの入力を https の origin にそろえる。不正なら null
+  function normalizeSite(input) {
+    const value = input.trim();
+    if (!value) return '';
+    if (/^[a-z0-9-]+$/i.test(value)) return `https://${value.toLowerCase()}.notion.site`;
+    try {
+      const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(value) ? value : `https://${value}`);
+      if (url.protocol !== 'https:' || !url.hostname.includes('.')) return null;
+      if (url.hostname === 'app.notion.com' || url.hostname.endsWith('notion.so')) return null;
+      return url.origin;
+    } catch {
+      return null;
+    }
+  }
+
+  function compose(page, origin, include) {
+    if (!page.pageId || !include) return page.body;
+    return `${page.body}\n【CS URL】${origin || DEFAULT_ORIGIN}/${page.pageId}`;
+  }
+
+  function show(state, message, hint) {
+    statusEl.className = state;
+    statusEl.textContent = message;
+    hintEl.textContent = hint;
+  }
+
+  function legacyCopy() {
+    area.focus();
+    area.select();
+    try {
+      return document.execCommand('copy');
+    } catch {
+      return false;
+    }
+  }
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(area.value);
+      return true;
+    } catch {
+      return legacyCopy();
+    }
+  }
+
+  let copied = false;
+
+  async function attempt() {
+    copied = await copy();
+    if (copied) {
+      show('ok', 'コピーしました', 'このタブは閉じて大丈夫です。');
+    } else {
+      show('wait', 'まだコピーできていません', 'ブラウザの制限で自動コピーできませんでした。ページのどこかをクリックするとコピーします。');
+    }
+    return copied;
+  }
+
+  const page = readHash();
+  const hasContent = Boolean(page && page.body);
+  siteInput.value = loadOrigin();
+  includeUrl.checked = loadIncludeUrl();
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const origin = normalizeSite(siteInput.value);
+    if (origin === null) {
+      settingsMessage.className = 'error';
+      settingsMessage.textContent = 'notion.site などの公開URLを入れてください。編集画面のURLは使えません。';
+      return;
+    }
+    if (!saveOrigin(origin)) {
+      settingsMessage.className = 'error';
+      settingsMessage.textContent = 'このブラウザでは設定を保存できませんでした。';
+      return;
+    }
+    siteInput.value = origin;
+    settingsMessage.className = '';
+    if (hasContent) {
+      area.value = compose(page, origin, includeUrl.checked);
+      await attempt();
+      if (!includeUrl.checked) {
+        settingsMessage.textContent = origin ? '保存しました。今回はCS URLなしでコピーしています。' : '設定を消しました。今回はCS URLなしでコピーしています。';
+      } else {
+        settingsMessage.textContent = origin ? '保存して、公開URLでコピーし直しました。' : '設定を消して、Notion標準のURLでコピーし直しました。';
+      }
+    } else {
+      settingsMessage.textContent = origin ? '保存しました。' : '設定を消しました。Notion標準のURLを使います。';
+    }
+  });
+
+  if (page === null) {
+    show('wait', 'リンクの内容を読み取れませんでした', 'Notionのコピー列からもう一度開いてください。');
+    button.hidden = true;
+    area.hidden = true;
+    settings.hidden = true;
+    urlOption.hidden = true;
+  } else if (!hasContent) {
+    document.getElementById('about').hidden = false;
+    document.getElementById('copy-view').hidden = true;
+  } else {
+    // 古い形式のリンクはページIDを持たないので、チェックと設定欄は出さない
+    settings.hidden = !page.pageId;
+    urlOption.hidden = !page.pageId;
+    area.value = compose(page, loadOrigin(), includeUrl.checked);
+    document.title = 'CSコピー: ' + page.body.replace(/^```\n/, '').split('\n')[0].replace(/^【[^】]*】/, '');
+    button.addEventListener('click', attempt);
+    includeUrl.addEventListener('change', () => {
+      saveIncludeUrl(includeUrl.checked);
+      area.value = compose(page, loadOrigin(), includeUrl.checked);
+      attempt();
+    });
+    // 自動コピーが拒否されたときの代替: タブのフォーカス時と最初のクリックで再試行する
+    const retry = () => { if (!copied) attempt(); };
+    window.addEventListener('focus', retry);
+    document.addEventListener('pointerdown', (event) => {
+      if (event.target !== button && !settings.contains(event.target) && !urlOption.contains(event.target)) retry();
+    });
+    attempt();
+  }
+</script>
+</body>
+</html>
